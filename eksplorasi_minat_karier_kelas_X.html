@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eksplorasi Minat Karier Kelas X</title>
+<style>
+:root{--ink:#243047;--muted:#617087;--line:#dce3ed;--paper:#f5f7fb;--white:#fff;--accent:#3d628f;--soft:#eaf0f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:850px;margin:0 auto;padding:22px 14px 44px}
+.hero{background:linear-gradient(135deg,#243e62,#527da5);color:#fff;padding:28px 24px;border-radius:20px;margin-bottom:18px}
+.hero h1{font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15;margin:0 0 10px}
+.hero p{margin:0;color:#eef4fb}
+.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 4px 18px rgba(36,48,71,.04)}
+.notice{background:#fff8e8;border:1px solid #f0dfb5;padding:13px 15px;border-radius:12px;color:#624b19;font-size:.94rem}
+h2{font-size:1.2rem;margin:0 0 12px}
+.question{padding:15px 0;border-bottom:1px solid var(--line)}
+.question:last-child{border-bottom:0}
+.question p{font-weight:650;margin:0 0 10px}
+.options{display:flex;flex-wrap:wrap;gap:8px}
+.options label{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;cursor:pointer;flex:1 1 180px}
+.options label:has(input:checked){background:var(--soft);border-color:var(--accent)}
+input[type=radio]{accent-color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+button{border:0;border-radius:11px;padding:12px 16px;font-size:1rem;font-weight:650;cursor:pointer}
+.primary{background:var(--accent);color:white}
+.secondary{background:var(--soft);color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid #9bb9dd;outline-offset:2px}
+.result{display:none}
+.result h2{font-size:1.45rem}
+.score-row{margin:14px 0}
+.score-label{display:flex;justify-content:space-between;gap:10px;font-weight:650}
+.track{height:10px;background:#edf1f6;border-radius:99px;overflow:hidden;margin-top:6px}
+.fill{height:100%;width:0;background:var(--accent);border-radius:99px}
+.small{font-size:.92rem;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:.88rem;padding:14px}
+@media(max-width:520px){.card{padding:16px}.hero{padding:23px 18px}.options label{flex-basis:100%}}
+@media print{body{background:#fff}.hero{background:#fff;color:#000;border:1px solid #aaa}.hero p{color:#333}.card{box-shadow:none;break-inside:avoid}.actions{display:none}}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+  <h1>Kenali Minat Kariermu</h1>
+  <p>Aktivitas eksplorasi karier untuk siswa kelas X · Kesehatan, Teknik, dan Humaniora</p>
+</section>
+
+<section class="card">
+  <h2>Petunjuk pengerjaan</h2>
+  <ol>
+    <li>Baca setiap pernyataan dengan santai dan jujur.</li>
+    <li>Pilih jawaban yang paling menggambarkan ketertarikanmu saat ini, bukan jawaban yang dianggap paling bagus.</li>
+    <li>Tidak ada jawaban benar atau salah. Kamu boleh tertarik pada lebih dari satu bidang.</li>
+    <li>Setelah selesai, tekan <b>Lihat refleksi saya</b> untuk membaca hasil awal dan saran eksplorasi.</li>
+  </ol>
+  <div class="notice"><b>Catatan penting:</b> Ini bukan tes psikologi, diagnosis, atau penentu jurusan. Hasil hanya membantu mengenali minat awal dan sebaiknya dibahas kembali bersama guru BK/orang tua serta disesuaikan dengan pilihan mata pelajaran dan aturan sekolah.</div>
+</section>
+
+<form id="quiz">
+<section class="card">
+<h2>A. Pernyataan tentang dirimu</h2>
+<div id="questions"></div>
+<div class="actions">
+<button class="primary" type="submit">Lihat refleksi saya</button>
+<button class="secondary" type="reset">Ulangi dari awal</button>
+</div>
+</section>
+</form>
+
+<section id="result" class="card result" aria-live="polite">
+<h2>Hasil eksplorasi awalmu</h2>
+<p id="summary"></p>
+<div id="scores"></div>
+<h2 style="margin-top:24px">Apa artinya?</h2>
+<p id="interpretation"></p>
+<h2 style="margin-top:24px">Langkah eksplorasi berikutnya</h2>
+<ul id="nextSteps"></ul>
+<h2 style="margin-top:24px">Refleksi pribadi</h2>
+<p>Lengkapi kalimat ini di buku atau catatanmu:</p>
+<ul>
+<li>Bidang yang ingin saya kenali lebih jauh adalah ... karena ...</li>
+<li>Hal yang ingin saya coba untuk menguji ketertarikan saya adalah ...</li>
+<li>Informasi yang perlu saya cari atau tanyakan kepada guru BK adalah ...</li>
+</ul>
+<div class="actions">
+<button class="secondary" type="button" onclick="window.print()">Cetak / Simpan PDF</button>
+<button class="secondary" type="button" id="copy">Salin ringkasan hasil</button>
+</div>
+<p id="copyStatus" class="small"></p>
+</section>
+<footer>Dibuat sebagai media refleksi layanan klasikal BK · Eksplorasi, bukan penetapan jurusan</footer>
+</main>
+<script>
+const items = [
+ {c:"health", t:"Saya penasaran mempelajari cara kerja tubuh manusia dan cara menjaga kesehatan."},
+ {c:"health", t:"Saya tertarik mengetahui bagaimana kebiasaan sehari-hari memengaruhi kesehatan seseorang."},
+ {c:"health", t:"Saya bisa membayangkan diri saya belajar tentang kesehatan, perawatan, gizi, atau kesehatan masyarakat."},
+ {c:"health", t:"Saya tertarik pada kegiatan yang bertujuan membantu orang menjaga atau meningkatkan kesehatannya."},
+ {c:"tech", t:"Saya senang mencari tahu cara kerja alat, komputer, aplikasi, atau teknologi."},
+ {c:"tech", t:"Saya menikmati kegiatan mencoba, merancang, membuat, atau memperbaiki sesuatu."},
+ {c:"tech", t:"Ketika ada masalah, saya tertarik menguji beberapa cara untuk menemukan solusi."},
+ {c:"tech", t:"Saya penasaran bagaimana bangunan, mesin, sistem digital, atau perangkat teknologi dirancang."},
+ {c:"human", t:"Saya senang memahami perilaku manusia, budaya, bahasa, atau kehidupan sosial."},
+ {c:"human", t:"Saya tertarik memahami alasan orang memiliki pendapat atau kebiasaan yang berbeda."},
+ {c:"human", t:"Saya menikmati kegiatan membahas persoalan sosial, sejarah, komunikasi, atau kehidupan masyarakat."},
+ {c:"human", t:"Saya tertarik menyampaikan gagasan atau membantu orang memahami suatu persoalan dari berbagai sudut pandang."}
+];
+const labels = [
+ ["Belum menggambarkan saya","Sedikit menggambarkan saya","Cukup menggambarkan saya","Sangat menggambarkan saya"]
+];
+const wrap = document.getElementById('questions');
+items.forEach((item,i)=>{
+ const div=document.createElement('div'); div.className='question';
+ const p=document.createElement('p'); p.textContent=(i+1)+'. '+item.t; div.appendChild(p);
+ const opts=document.createElement('div'); opts.className='options';
+ labels[0].forEach((label,j)=>{
+  const lab=document.createElement('label');
+  const input=document.createElement('input'); input.type='radio'; input.name='q'+i; input.value=String(j); input.required=true;
+  const span=document.createElement('span'); span.textContent=label;
+  lab.append(input,span); opts.appendChild(lab);
+ });
+ div.appendChild(opts); wrap.appendChild(div);
+});
+const fieldNames={health:'Kesehatan',tech:'Teknik',human:'Humaniora'};
+const descriptions={
+ health:'Kamu dapat mengeksplorasi topik tubuh manusia, gizi, kesehatan masyarakat, atau cara menjaga kesehatan. Minat pada bidang ini tidak hanya soal menyukai Biologi; komunikasi, tanggung jawab, dan kemauan belajar juga penting.',
+ tech:'Kamu dapat mencoba aktivitas pemecahan masalah, eksperimen sederhana yang aman, pemrograman pemula, desain, atau proyek membuat sesuatu. Bidang Teknik tidak hanya tentang komputer; jenis bidangnya beragam.',
+ human:'Kamu dapat mengeksplorasi perilaku manusia, budaya, bahasa, sejarah, komunikasi, pendidikan, atau persoalan sosial. Bidang Humaniora dan ilmu sosial saling berkaitan, tetapi tidak sepenuhnya sama.'
+};
+document.getElementById('quiz').addEventListener('submit',e=>{
+ e.preventDefault();
+ const data=new FormData(e.target);
+ const scores={health:0,tech:0,human:0};
+ let answered=0;
+ items.forEach((item,i)=>{const v=data.get('q'+i);if(v!==null){scores[item.c]+=Number(v)+1;answered++;}});
+ const max=16;
+ const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+ const top=sorted.filter(x=>x[1]===sorted[0][1]).map(x=>fieldNames[x[0]]);
+ document.getElementById('summary').textContent = top.length===1
+ ? 'Dari jawabanmu, bidang '+top[0]+' memperoleh skor ketertarikan relatif paling tinggi pada aktivitas ini. Anggap ini sebagai petunjuk awal untuk dieksplorasi, bukan keputusan final.'
+ : 'Jawabanmu menunjukkan ketertarikan yang relatif seimbang pada bidang '+top.join(' dan ')+'. Kamu bisa mengeksplorasi keduanya dan melihat kegiatan mana yang paling membuatmu penasaran.';
+ const scoresEl=document.getElementById('scores'); scoresEl.innerHTML='';
+ Object.entries(scores).forEach(([key,val])=>{
+  const row=document.createElement('div');row.className='score-row';
+  const lab=document.createElement('div');lab.className='score-label';
+  const name=document.createElement('span');name.textContent=fieldNames[key];
+  const number=document.createElement('span');number.textContent=val+' / '+max;
+  lab.append(name,number);
+  const track=document.createElement('div');track.className='track';
+  const fill=document.createElement('div');fill.className='fill';fill.style.width=(val/max*100)+'%';
+  track.appendChild(fill);row.append(lab,track);
+  const desc=document.createElement('p');desc.className='small';desc.textContent=descriptions[key];row.appendChild(desc);
+  scoresEl.appendChild(row);
+ });
+ document.getElementById('interpretation').textContent='Skor menunjukkan jawabanmu pada 4 pernyataan untuk setiap bidang. Skor yang lebih tinggi berarti pernyataan bidang tersebut lebih menggambarkan ketertarikanmu saat ini. Skor tidak mengukur kecerdasan, kemampuan, nilai akademik, atau peluang sukses. Skor yang rendah juga bukan berarti kamu tidak mampu di bidang tersebut.';
+ const next=document.getElementById('nextSteps');next.innerHTML='';
+ [
+ 'Pilih satu kegiatan kecil yang berkaitan dengan bidang dengan skor tertinggi, lalu amati apakah kamu menikmati prosesnya.',
+ 'Cari tahu mata pelajaran, program studi, aktivitas belajar, dan profesi yang terkait dari sumber tepercaya.',
+ 'Bicarakan hasil dan pertanyaanmu dengan guru BK. Pertimbangkan juga pengalaman, kemampuan yang ingin dikembangkan, serta ketentuan pilihan mata pelajaran di sekolah.',
+ 'Jika skor beberapa bidang berdekatan, jangan buru-buru memilih. Coba kegiatan dari lebih dari satu bidang.'
+ ].forEach(t=>{const li=document.createElement('li');li.textContent=t;next.appendChild(li)});
+ const result=document.getElementById('result');result.style.display='block';result.scrollIntoView({behavior:'smooth',block:'start'});
+ document.getElementById('copyStatus').textContent='';
+ document.getElementById('copy').onclick=async()=>{
+  const text='Hasil eksplorasi minat karier awal\n'+Object.entries(scores).map(([k,v])=>fieldNames[k]+': '+v+'/'+max).join('\n')+'\nBidang dengan skor relatif tertinggi: '+top.join(', ')+'\nCatatan: Ini bukan tes psikologi atau penentu jurusan. Gunakan hasil sebagai bahan refleksi dan diskusikan dengan guru BK.';
+  try{await navigator.clipboard.writeText(text);document.getElementById('copyStatus').textContent='Ringkasan berhasil disalin.'}
+  catch(err){document.getElementById('copyStatus').textContent=text}
+ };
+});
+document.getElementById('quiz').addEventListener('reset',()=>{document.getElementById('result').style.display='none';});
+</script>
+</body>
+</html>
